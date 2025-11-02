@@ -1,0 +1,50 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function Page() {
+  const [imageUrl, setImageUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function fetchDog() {
+    try {
+      setIsLoading(true);
+      setError("");
+      const res = await fetch("https://dog.ceo/api/breeds/image/random", { cache: "no-store" });
+      if (!res.ok) throw new Error("?????? ??????????");
+      const data = await res.json();
+      if (data && data.status === "success" && data.message) {
+        setImageUrl(data.message);
+      } else {
+        throw new Error("?? ??????? ???????? ???????????");
+      }
+    } catch (e) {
+      setError(e.message || "?????? ????????");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchDog();
+  }, []);
+
+  return (
+    <main className="main">
+      <h1 className="title">??????? ???????? ??????</h1>
+      <p className="subtitle">??????? ??????, ????? ????????????? ????? ?????? ??</p>
+      <div className="actions">
+        <button className="button" onClick={fetchDog} disabled={isLoading}>
+          {isLoading ? "????????..." : "?????????????"}
+        </button>
+      </div>
+      {error && <p className="error">{error}</p>}
+      {imageUrl && (
+        <div className="image-wrap">
+          <img src={imageUrl} alt="??????" className="dog-image" />
+        </div>
+      )}
+    </main>
+  );
+}
